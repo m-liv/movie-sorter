@@ -1,105 +1,157 @@
-//JavaScript code for the sorter
-  let items = [];
 
+let namMember = [];
+let lstMember = [], parent = [], equal = [], rec = [];
+let cmp1, cmp2, head1, head2, nrec;
+let numQuestion, totalSize, finishSize, finishFlag;
+
+//Get the list of items for sorting from the given text file
+function fetchNames() {
   fetch('barbie_movies.txt')
     .then(response => response.text())
     .then(text => {
-      items = text.split('\n').map(line => line.trim()).filter(Boolean);
-      startSorter();
+      namMember = text.split('\n').map(line => line.trim()).filter(Boolean);
+      initList();
+      showImage();
     });
+}
 
-  function startSorter() {
-    mergeSort(items);
-    totalComparisons = queue.reduce((acc, pair) => acc + Math.min(pair.left.length, pair.right.length), 0);
+function initList() {
+  let n = 0;
+  let mid;
 
-    if (queue.length > 0) {
-      const first = queue[0];
-      showBattle({ left: first.left, right: first.right });
-      updateStatus();
-    } else {
-      document.getElementById('status').textContent = "Nothing to compare.";
+  lstMember[n] = [];
+  for (let i = 0; i < namMember.length; i++) {
+    lstMember[n][i] = i;
+  }
+  parent[n] = -1;
+  totalSize = 0;
+  n++;
+
+  for (let i = 0; i < lstMember.length; i++) {
+    if (lstMember[i].length >= 2) {
+      mid = Math.ceil(lstMember[i].length / 2);
+      lstMember[n] = lstMember[i].slice(0, mid);
+      totalSize += lstMember[n].length;
+      parent[n] = i;
+      n++;
+      lstMember[n] = lstMember[i].slice(mid);
+      totalSize += lstMember[n].length;
+      parent[n] = i;
+      n++;
     }
   }
-  
-  let comparisons = 0;
-  let totalComparisons = 0;
-  let finalList = [];
-  let currentLeft, currentRight;
-  let queue = [];
-  
-  function mergeSort(list) {
-    if (list.length <= 1) return list;
-    const mid = Math.floor(list.length / 2);
-    const left = mergeSort(list.slice(0, mid));
-    const right = mergeSort(list.slice(mid));
-    queue.push({ left, right, merged: [] });
-    return left.concat(right); // dummy return
-  }
-  
-  function updateStatus() {
-    document.getElementById('status').innerHTML = `Battle #${comparisons + 1}<br>${Math.round((comparisons / totalComparisons) * 100)}% sorted.`;
-  }
-  
-  function showBattle(pair) {
-    currentLeft = pair.left;
-    currentRight = pair.right;
-    document.getElementById('left').textContent = currentLeft[0];
-    document.getElementById('right').textContent = currentRight[0];
-  }
-  
-  function pick(winner) {
-    const pair = queue[0];
-    const l = pair.left;
-    const r = pair.right;
-    const m = pair.merged;
-  
-    if (winner === 'left') m.push(l.shift());
-    else if (winner === 'right') m.push(r.shift());
-    else if (winner === 'equal') {
-      m.push(l.shift());
-      m.push(r.shift());
+
+  for (let i = 0; i < namMember.length; i++) rec[i] = 0;
+  for (let i = 0; i <= namMember.length; i++) equal[i] = -1;
+
+  nrec = 0;
+  cmp1 = lstMember.length - 2;
+  cmp2 = lstMember.length - 1;
+  head1 = 0;
+  head2 = 0;
+  numQuestion = 1;
+  finishSize = 0;
+  finishFlag = 0;
+}
+
+function sortList(flag) {
+  if (flag < 0) {
+    rec[nrec++] = lstMember[cmp1][head1++];
+    finishSize++;
+    while (equal[rec[nrec - 1]] !== -1) {
+      rec[nrec++] = lstMember[cmp1][head1++];
+      finishSize++;
     }
-  
-    comparisons++;
-    updateStatus();
-  
-    if (l.length && r.length) {
-      showBattle({ left: l, right: r });
-    } else {
-      pair.merged = m.concat(l).concat(r);
-      queue.shift();
-      if (queue.length) {
-        const next = queue[0];
-        showBattle({ left: next.left, right: next.right });
-      } else {
-        finalList = pair.merged;
-        document.querySelector('.container').style.display = 'none';
-        document.getElementById('status').style.display = 'none';
-        document.getElementById('done').style.display = 'block';
-        const ol = document.getElementById('result');
-        finalList.forEach((item, i) => {
-          const li = document.createElement('li');
-          li.textContent = item;
-          ol.appendChild(li);
-        });
-      }
+  } else if (flag > 0) {
+    rec[nrec++] = lstMember[cmp2][head2++];
+    finishSize++;
+    while (equal[rec[nrec - 1]] !== -1) {
+      rec[nrec++] = lstMember[cmp2][head2++];
+      finishSize++;
     }
-  }
-  
-  document.getElementById('left').onclick = () => pick('left');
-  document.getElementById('right').onclick = () => pick('right');
-  document.getElementById('equal').onclick = () => pick('equal');
-  document.getElementById('skip').onclick = () => pick('equal'); // treat skip as tie
-  
-  mergeSort(items);
-  totalComparisons = queue.reduce((acc, pair) => acc + Math.min(pair.left.length, pair.right.length), 0);
-  
-  if (queue.length > 0) {
-    const first = queue[0];
-    showBattle({ left: first.left, right: first.right });
-    updateStatus();
   } else {
-    document.getElementById('status').textContent = "Nothing to compare.";
+    rec[nrec++] = lstMember[cmp1][head1++];
+    finishSize++;
+    while (equal[rec[nrec - 1]] !== -1) {
+      rec[nrec++] = lstMember[cmp1][head1++];
+      finishSize++;
+    }
+    equal[rec[nrec - 1]] = lstMember[cmp2][head2];
+    rec[nrec++] = lstMember[cmp2][head2++];
+    finishSize++;
+    while (equal[rec[nrec - 1]] !== -1) {
+      rec[nrec++] = lstMember[cmp2][head2++];
+      finishSize++;
+    }
   }
-  
-  
+
+  if (head1 === lstMember[cmp1].length && head2 < lstMember[cmp2].length) {
+    while (head2 < lstMember[cmp2].length) {
+      rec[nrec++] = lstMember[cmp2][head2++];
+      finishSize++;
+    }
+  } else if (head1 < lstMember[cmp1].length && head2 === lstMember[cmp2].length) {
+    while (head1 < lstMember[cmp1].length) {
+      rec[nrec++] = lstMember[cmp1][head1++];
+      finishSize++;
+    }
+  }
+
+  if (head1 === lstMember[cmp1].length && head2 === lstMember[cmp2].length) {
+    for (let i = 0; i < lstMember[cmp1].length + lstMember[cmp2].length; i++) {
+      lstMember[parent[cmp1]][i] = rec[i];
+    }
+    lstMember.pop();
+    lstMember.pop();
+    cmp1 -= 2;
+    cmp2 -= 2;
+    head1 = 0;
+    head2 = 0;
+    for (let i = 0; i < namMember.length; i++) rec[i] = 0;
+    nrec = 0;
+  }
+
+  if (cmp1 < 0) {
+    document.getElementById("battleNumber").innerHTML =
+      "Battle #" + (numQuestion - 1) + "<br>" +
+      Math.floor(finishSize * 100 / totalSize) + "% sorted.";
+    showResult();
+    finishFlag = 1;
+  } else {
+    showImage();
+  }
+}
+
+function showImage() {
+  document.getElementById("battleNumber").innerHTML =
+    "Battle #" + numQuestion + "<br>" +
+    Math.floor(finishSize * 100 / totalSize) + "% sorted.";
+  document.getElementById("leftField").innerHTML = toNameFace(lstMember[cmp1][head1]);
+  document.getElementById("rightField").innerHTML = toNameFace(lstMember[cmp2][head2]);
+  numQuestion++;
+}
+
+function showResult() {
+  let ranking = 1;
+  let sameRank = 1;
+  let str = "<table style='width:300px; font-size:16px; margin:auto; border:1px solid black;'>";
+  str += "<tr><th>Rank</th><th>Movie</th></tr>";
+
+  for (let i = 0; i < namMember.length; i++) {
+    str += "<tr><td style='border:1px solid black;'>" + ranking + "</td><td style='border:1px solid black;'>" + namMember[lstMember[0][i]] + "</td></tr>";
+    if (i < namMember.length - 1 && equal[lstMember[0][i]] === lstMember[0][i + 1]) {
+      sameRank++;
+    } else {
+      ranking += sameRank;
+      sameRank = 1;
+    }
+  }
+  str += "</table>";
+  document.getElementById("resultField").innerHTML = str;
+}
+
+function toNameFace(n) {
+  return namMember[n];
+}
+
+window.onload = fetchNames;
