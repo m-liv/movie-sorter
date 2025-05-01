@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Battle Sorter</title>
+  <style>
+    body { font-family: 'Georgia', serif; text-align: center; }
+    .container { display: flex; justify-content: center; gap: 20px; margin-top: 50px; }
+    .option, .button { border: 1px solid black; padding: 20px; width: 200px; cursor: pointer; }
+    .middle { display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+  </style>
+</head>
+<body>
+  <h2 id="status">Battle #1<br>0% sorted.</h2>
+  <div class="container">
+    <div id="left" class="option"></div>
+    <div class="middle">
+      <div id="equal" class="button">I Like Both</div>
+      <div id="skip" class="button">No Opinion</div>
+    </div>
+    <div id="right" class="option"></div>
+  </div>
+
+  <h3 id="done" style="display:none;">Sorting complete!</h3>
+  <ol id="result" style="text-align: left; margin-top: 30px; max-width: 300px; margin-inline: auto;"></ol>
+
+  <script src="sorter.js"></script>
+</body>
+</html>
